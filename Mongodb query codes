@@ -1,0 +1,21 @@
+let q = {};
+  let results;
+  let data = req.body;
+  let and_conds = [];
+  for (let i = 0; i < data.length; i++) {
+    let val = new RegExp(data[i].value);
+    let field_name = data[i].fieldName;
+    and_conds.push({ [field_name]: { $regex: val, $options: "-i" } });
+  }
+  q["$and"] = and_conds;
+
+let records = await KeyInfo.aggregate([
+   {
+      $lookup: {
+        from: "PersonalInfo",
+        let: { name: "$name" },
+        pipeline: [{ $match: { $expr: q } }],
+        as: "searchRecords"
+      }
+    }
+   ]);
